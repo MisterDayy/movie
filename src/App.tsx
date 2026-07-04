@@ -12,6 +12,23 @@ import { Watch } from "./pages/Watch";
 import { Onboarding } from "./pages/Onboarding";
 import { Play, Flame, Film, Tv, Compass, ShieldAlert } from "lucide-react";
 
+const ONBOARDING_SESSION_KEY = "watchly_onboarding_seen";
+
+// Menampilkan splash screen (Onboarding) sekali per sesi browser di path "/".
+// Setelah pernah dilihat pada sesi yang sama, langsung tampilkan Home.
+// sessionStorage otomatis kosong lagi saat tab/browser ditutup.
+function RootGate() {
+  const [seen] = React.useState(() => {
+    try {
+      return sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "1";
+    } catch {
+      return true; // kalau storage tidak tersedia, jangan blokir akses
+    }
+  });
+
+  return seen ? <Home /> : <Onboarding />;
+}
+
 export default function App() {
   return (
     <GenreProvider>
@@ -21,8 +38,7 @@ export default function App() {
           {/* Main Content Area */}
           <main className="flex-grow pb-24">
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/" element={<RootGate />} />
               <Route path="/ranking" element={<Ranking />} />
               <Route path="/mine" element={<Mine />} />
               <Route path="/browse/:category" element={<Browse />} />

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Check, Film } from "lucide-react";
 import { getPopular, getPosterUrl, MovieItem } from "../api/dayyapi";
 
 export const Onboarding: React.FC = () => {
-  const navigate = useNavigate();
   const [movies, setMovies] = useState<MovieItem[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [email, setEmail] = useState("");
@@ -38,7 +36,14 @@ export const Onboarding: React.FC = () => {
 
   const handleContinue = () => {
     // TODO: sambungkan ke alur pendaftaran/akun sesungguhnya
-    navigate("/");
+    try {
+      sessionStorage.setItem("watchly_onboarding_seen", "1");
+    } catch {
+      // storage tidak tersedia (mis. mode privat ketat) — tetap lanjutkan
+    }
+    // reload penuh supaya RootGate di App.tsx membaca ulang status sesi
+    window.location.hash = "/";
+    window.location.reload();
   };
 
   return (
