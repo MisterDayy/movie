@@ -5,19 +5,19 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-background: #0B0F19;
-  --color-surface: #121824;
-  --color-primary: #248CFF;
+  --color-background: #10162A;
+  --color-surface: #1B2340;
+  --color-primary: #2F80FF;
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #8A99AD;
+  --color-text-secondary: #8B93B0;
 
-  --radius-card: 14px;
-  --radius-promo: 16px;
+  --radius-card: 16px;
+  --radius-promo: 22px;
 }
 
 @layer base {
   body {
-    background-color: #0B0F19;
+    background-color: #10162A;
     color: #FFFFFF;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -41,14 +41,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: #10162A;
 }
 ::-webkit-scrollbar-thumb {
-  background: #121824;
+  background: #1B2340;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #248CFF;
+  background: #2F80FF;
 }
 
 @keyframes shimmer {
@@ -61,7 +61,7 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, #121824 25%, #1c2536 50%, #121824 75%);
+  background: linear-gradient(90deg, #1B2340 25%, #26305a 50%, #1B2340 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }

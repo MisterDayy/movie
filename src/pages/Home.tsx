@@ -3,7 +3,8 @@ import { getHomeData, getTrending, HomeResponse, MovieItem } from "../api/dayyap
 import { BannerCarousel } from "../components/BannerCarousel";
 import { MovieCard } from "../components/MovieCard";
 import { CardSkeleton, BannerSkeleton } from "../components/Skeleton";
-import { AlertCircle, RefreshCw, Sparkles, ChevronRight, HelpCircle } from "lucide-react";
+import { TopBar } from "../components/TopBar";
+import { AlertCircle, RefreshCw, ChevronRight, HelpCircle, Clapperboard, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Home: React.FC = () => {
@@ -11,12 +12,12 @@ export const Home: React.FC = () => {
   const [trendingItems, setTrendingItems] = useState<MovieItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string>("recommend");
 
   async function loadData() {
     setIsLoading(true);
     setError(null);
     try {
-      // Fetch home data first
       let homeRes;
       try {
         homeRes = await getHomeData();
@@ -25,7 +26,6 @@ export const Home: React.FC = () => {
         throw new Error("Gagal mengambil data Home dari DayyAPI.");
       }
 
-      // Fetch trending data, handle fail gracefully
       try {
         const trendingRes = await getTrending(1);
         if (trendingRes && trendingRes.results) {
@@ -53,13 +53,10 @@ export const Home: React.FC = () => {
     loadData();
   }, []);
 
-  // Get current hour to determine greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 11) return "Selamat pagi,";
-    if (hour < 15) return "Selamat siang,";
-    if (hour < 19) return "Selamat sore,";
-    return "Selamat malam,";
+  const scrollToSection = (key: string) => {
+    setActiveSection(key);
+    const el = document.getElementById(`section-${key}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   if (error) {
@@ -83,37 +80,72 @@ export const Home: React.FC = () => {
     );
   }
 
+  const sectionEntries = homeData ? Object.entries(homeData.sections) : [];
+
   return (
-    <div className="space-y-8 pb-16" id="home-page">
-      {/* Dynamic Personal Greeting Panel */}
-      <div className="px-5 md:px-10 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-[13px] font-normal text-text-secondary">
-            {getGreeting()}
-          </span>
-          <h1 className="text-[22px] font-bold tracking-tight text-text-primary mt-0.5 flex items-center gap-1.5">
-            Sobat Nonton <span className="animate-bounce">👋</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-2 bg-surface border border-white/5 rounded-2xl px-4 py-2 text-xs text-text-secondary self-start sm:self-auto shadow-md">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-          <span>Banyak film & serial terbaru hari ini!</span>
+    <div className="space-y-8" id="home-page">
+      {/* Title + Search, matching reference top bar */}
+      <TopBar title="Movie" />
+
+      {/* Category pill tabs */}
+      <div className="px-5 md:px-10 -mt-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <button
+            onClick={() => scrollToSection("recommend")}
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
+              activeSection === "recommend"
+                ? "bg-primary text-white shadow-lg shadow-primary/20"
+                : "bg-surface text-text-secondary border border-white/5 hover:text-white"
+            }`}
+          >
+            Rekomendasi
+          </button>
+          {sectionEntries.map(([key, raw]) => {
+            const section = raw as { label: string; results: MovieItem[] };
+            if (!section.results || section.results.length === 0) return null;
+            return (
+              <button
+                key={key}
+                onClick={() => scrollToSection(key)}
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
+                  activeSection === key
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "bg-surface text-text-secondary border border-white/5 hover:text-white"
+                }`}
+              >
+                {section.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Hero Promo Banner Carousel */}
-      <div className="px-5 md:px-10">
-        {isLoading ? (
-          <BannerSkeleton />
-        ) : (
-          <BannerCarousel items={trendingItems} />
-        )}
+      <div className="px-5 md:px-10" id="section-recommend">
+        {isLoading ? <BannerSkeleton /> : <BannerCarousel items={trendingItems} />}
+      </div>
+
+      {/* Promo gradient quick-access buttons */}
+      <div className="px-5 md:px-10 flex items-center gap-3">
+        <Link
+          to="/browse/now-playing"
+          className="flex-1 flex items-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-[#FF6B6B] to-[#FF3D9A] text-white font-bold text-xs shadow-lg shadow-[#FF3D9A]/20 active:scale-95 transition-transform"
+        >
+          <Clapperboard className="w-4 h-4" />
+          <span># Sedang Tayang</span>
+        </Link>
+        <Link
+          to="/browse/upcoming"
+          className="flex-1 flex items-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-[#2F80FF] to-[#7C3AED] text-white font-bold text-xs shadow-lg shadow-primary/20 active:scale-95 transition-transform"
+        >
+          <Users className="w-4 h-4" />
+          <span># Segera Tayang</span>
+        </Link>
       </div>
 
       {/* Sections Lists (Horizontal Carousels) */}
       <div className="space-y-10">
         {isLoading ? (
-          // Render generic layout Skeletons
           [1, 2, 3].map((idx) => (
             <div key={idx} className="space-y-4 px-5 md:px-10">
               <div className="flex items-center justify-between">
@@ -128,11 +160,10 @@ export const Home: React.FC = () => {
             </div>
           ))
         ) : homeData && homeData.sections ? (
-          Object.entries(homeData.sections).map(([key, rawSection]) => {
+          sectionEntries.map(([key, rawSection]) => {
             const section = rawSection as { label: string; results: MovieItem[] };
             if (!section.results || section.results.length === 0) return null;
 
-            // Simple map key to browse route paths for 'See All' links if applicable
             let browsePath = `/browse/discover`;
             if (key === "action") browsePath = "/browse/discover?genre=28";
             else if (key === "animation") browsePath = "/browse/discover?genre=16";
@@ -141,28 +172,20 @@ export const Home: React.FC = () => {
             else if (key === "drama") browsePath = "/browse/discover?genre=18";
 
             return (
-              <section
-                key={key}
-                className="space-y-4 px-5 md:px-10 group/section"
-                id={`section-${key}`}
-              >
-                {/* Section Header */}
+              <section key={key} className="space-y-4 px-5 md:px-10 group/section" id={`section-${key}`}>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-[18px] font-semibold text-text-primary tracking-wide relative">
+                  <h2 className="text-[18px] font-bold text-text-primary tracking-wide relative">
                     {section.label}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover/section:w-8 transition-all duration-300" />
                   </h2>
-
                   <Link
                     to={browsePath}
                     className="flex items-center gap-0.5 text-xs text-primary font-bold hover:underline"
                   >
-                    <span>Lihat Semua</span>
+                    <span>More</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
 
-                {/* Horizontal Scroller Container */}
                 <div className="relative">
                   <div className="flex gap-3 overflow-x-auto pb-4 pt-1 no-scrollbar -mx-5 px-5 md:-mx-10 md:px-10 snap-x snap-mandatory scroll-smooth">
                     {section.results.map((movie) => (

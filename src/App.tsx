@@ -1,8 +1,10 @@
 import React from "react";
 import { HashRouter, Routes, Route, Link } from "react-router-dom";
 import { GenreProvider } from "./components/GenreProvider";
-import { Header } from "./components/Header";
+import { BottomNav } from "./components/BottomNav";
 import { Home } from "./pages/Home";
+import { Ranking } from "./pages/Ranking";
+import { Mine } from "./pages/Mine";
 import { Browse } from "./pages/Browse";
 import { Search } from "./pages/Search";
 import { Detail } from "./pages/Detail";
@@ -14,14 +16,13 @@ export default function App() {
     <GenreProvider>
       <HashRouter>
         <div className="min-h-screen flex flex-col bg-background text-text-primary">
-          
-          {/* Global Sticky Navigation Header */}
-          <Header />
 
           {/* Main Content Area */}
-          <main className="flex-grow">
+          <main className="flex-grow pb-24">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/ranking" element={<Ranking />} />
+              <Route path="/mine" element={<Mine />} />
               <Route path="/browse/:category" element={<Browse />} />
               <Route path="/search" element={<Search />} />
               <Route path="/:type/:id" element={<Detail />} />
@@ -46,8 +47,8 @@ export default function App() {
             </Routes>
           </main>
 
-          {/* Minimalist Footer */}
-          <footer className="bg-surface/30 border-t border-white/5 py-8 px-5 md:px-10 text-center text-xs text-text-secondary space-y-3" id="global-footer">
+          {/* Minimalist Footer (desktop only — mobile uses bottom tab nav) */}
+          <footer className="hidden md:block bg-surface/30 border-t border-white/5 py-8 px-5 md:px-10 text-center text-xs text-text-secondary space-y-3" id="global-footer">
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-bold tracking-wide uppercase text-[10px] text-text-secondary">
               <Link to="/browse/trending" className="hover:text-primary transition-colors">Trending</Link>
               <Link to="/browse/popular" className="hover:text-primary transition-colors">Terpopuler</Link>
@@ -64,6 +65,9 @@ export default function App() {
               © {new Date().getFullYear()} Watchly. Dibuat dengan dedikasi penuh untuk Sobat Nonton.
             </p>
           </footer>
+
+          {/* Global Bottom Tab Navigation (mobile app style) */}
+          <BottomNav />
 
         </div>
       </HashRouter>

@@ -94,17 +94,18 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, mediaType }) => {
         )}
       </motion.div>
 
-      {/* Title and Metadata outside the card */}
+      {/* Title and rating outside the card, matching reference layout */}
       <div className="mt-2.5">
-        <h3 className="text-[14px] font-semibold tracking-wide text-text-primary line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[36px]">
+        <h3 className="text-[14px] font-bold tracking-wide text-text-primary line-clamp-1 group-hover:text-primary transition-colors leading-tight">
           {title || "Tanpa Judul"}
         </h3>
-        <p className="text-[12px] text-text-secondary mt-0.5 flex items-center justify-between">
-          <span>{year}</span>
-          <span className="text-[10px] px-1 py-0.2 rounded border border-white/10 text-white/40 uppercase">
-            {item.original_language}
+        <div className="flex items-center gap-1 mt-1">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <span className="text-[13px] font-bold text-amber-400">
+            {item.vote_average ? item.vote_average.toFixed(1) : "0.0"}
           </span>
-        </p>
+          <span className="text-[11px] text-text-secondary ml-1">{year}</span>
+        </div>
       </div>
     </Link>
   );
