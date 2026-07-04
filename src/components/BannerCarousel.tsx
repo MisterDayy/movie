@@ -10,24 +10,18 @@ interface BannerCarouselProps {
 
 export const BannerCarousel: React.FC<BannerCarouselProps> = ({ items }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
 
-  const slides = items.slice(0, 5); // Limit to top 5 featured items
+  // Only feature items that actually have a backdrop image — an empty hero
+  // is worse than a shorter carousel.
+  const slides = items.filter((it) => it.backdrop_path).slice(0, 6);
 
   const handleNext = useCallback(() => {
-    setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % slides.length);
   }, [slides.length]);
 
-  const handlePrev = useCallback(() => {
-    setDirection(-1);
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  }, [slides.length]);
-
-  // Autoplay functionality
   useEffect(() => {
     if (slides.length <= 1) return;
-    const interval = setInterval(handleNext, 5000);
+    const interval = setInterval(handleNext, 6000);
     return () => clearInterval(interval);
   }, [handleNext, slides.length]);
 
@@ -35,120 +29,95 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = ({ items }) => {
 
   const currentItem = slides[currentIndex];
   const isMovie = currentItem.media_type !== "tv";
-  const title = isMovie ? currentItem.title || currentItem.original_title : currentItem.name || currentItem.original_name;
-  const backdropUrl = currentItem.backdrop_path ? getBackdropUrl(currentItem.backdrop_path) : "";
+  const title = isMovie
+    ? currentItem.title || currentItem.original_title
+    : currentItem.name || currentItem.original_name;
+  const backdropUrl = getBackdropUrl(currentItem.backdrop_path);
   const posterUrl = currentItem.poster_path ? getPosterUrl(currentItem.poster_path) : "";
-  const overview = currentItem.overview || "Belum ada deskripsi sinopsis untuk film ini.";
-  const voteAverage = currentItem.vote_average ? currentItem.vote_average.toFixed(1) : "0.0";
+  const overview = currentItem.overview || "Belum ada sinopsis untuk judul ini.";
+  const voteAverage = currentItem.vote_average ? currentItem.vote_average.toFixed(1) : null;
 
-  // Sliding animation variants using standard cubic-bezier
-  const slideVariants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? "100%" : "-100%",
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (dir: number) => ({
-      x: dir < 0 ? "100%" : "-100%",
-      opacity: 0,
-    }),
-  };
-
-  const handleDotClick = (index: number) => {
-    setDirection(index > currentIndex ? 1 : -1);
-    setCurrentIndex(index);
-  };
+  const handleDotClick = (index: number) => setCurrentIndex(index);
 
   return (
     <div className="relative w-full" id="promo-banner-carousel">
-      {/* Banner Window */}
-      <div className="relative w-full aspect-[2/1] min-h-[260px] md:min-h-[420px] rounded-promo overflow-hidden bg-surface border border-white/5 shadow-2xl">
-        <AnimatePresence initial={false} custom={direction}>
+      <div className="relative w-full aspect-[3/4] sm:aspect-[16/10] md:aspect-[21/9] min-h-[420px] md:min-h-[460px] rounded-promo overflow-hidden shadow-2xl">
+        <AnimatePresence mode="wait">
           <motion.div
-            key={currentIndex}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "tween", duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-              opacity: { duration: 0.35 },
-            }}
-            className="absolute inset-0 w-full h-full flex flex-col md:flex-row"
+            key={currentItem.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 w-full h-full"
           >
-            {/* Backdrop background for visual depth */}
-            {backdropUrl && (
-              <div className="absolute inset-0 -z-10 block">
-                <img
-                  src={backdropUrl}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover opacity-15 blur-sm"
-                />
+            {/* Full-bleed backdrop — the film's own imagery is the hero */}
+            <motion.img
+              src={backdropUrl}
+              alt=""
+              referrerPolicy="no-referrer"
+              initial={{ scale: 1 }}
+              animate={{ scale: 1.08 }}
+              transition={{ duration: 6, ease: "linear" }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+
+            {/* Gradient overlays: bottom-up for text legibility, plus a left
+                wash on wide screens so the text column always reads clearly
+                regardless of image content. */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
+            <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-background via-background/40 to-transparent" />
+
+            {/* Content */}
+            <div className="relative h-full w-full flex flex-col justify-end md:justify-center px-5 py-8 md:px-12 md:py-0">
+              <div className="max-w-xl">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-md uppercase">
+                    Rekomendasi
+                  </span>
+                  {voteAverage && (
+                    <div className="flex items-center gap-1 text-xs text-amber-400 font-semibold bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-full">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span>{voteAverage}</span>
+                    </div>
+                  )}
+                </div>
+
+                <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-text-primary leading-tight line-clamp-2 mb-3 drop-shadow-lg">
+                  {title}
+                </h2>
+
+                <p className="hidden sm:line-clamp-2 md:line-clamp-3 text-sm leading-relaxed text-text-secondary mb-6 max-w-lg drop-shadow">
+                  {overview}
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <Link
+                    to={`/watch/${isMovie ? "movie" : "tv"}/${currentItem.id}`}
+                    className="inline-flex items-center gap-2 px-5 md:px-7 py-2.5 md:py-3 rounded-full bg-primary hover:bg-primary/90 active:scale-95 text-white font-semibold text-sm transition-all shadow-lg shadow-primary/30"
+                  >
+                    <Play className="w-4 h-4 fill-white" />
+                    <span>Nonton Sekarang</span>
+                  </Link>
+
+                  <Link
+                    to={`/${isMovie ? "movie" : "tv"}/${currentItem.id}`}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 md:py-3 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-text-primary text-sm font-semibold transition-all border border-white/10 backdrop-blur-md"
+                  >
+                    <Info className="w-4 h-4" />
+                    <span className="hidden sm:inline">Detail</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Small poster chip, bottom-right, visible from tablet up —
+                a secondary visual anchor without hiding the hero on mobile. */}
+            {posterUrl && (
+              <div className="hidden lg:block absolute bottom-8 right-10 w-28 aspect-[2/3] rounded-card overflow-hidden ring-2 ring-white/10 shadow-2xl">
+                <img src={posterUrl} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
               </div>
             )}
-
-            {/* Left Column: Promotion Info */}
-            <div className="flex-1 p-5 md:p-10 flex flex-col justify-center z-10 bg-gradient-to-r from-surface via-surface/90 to-transparent">
-              <div className="flex items-center gap-2 mb-2 md:mb-3">
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 backdrop-blur-md">
-                  REKOMENDASI
-                </span>
-                <span className="text-white/40 text-xs">•</span>
-                <div className="flex items-center gap-1 text-xs text-amber-400 font-semibold bg-black/40 px-2 py-0.5 rounded-full">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span>{voteAverage}</span>
-                </div>
-              </div>
-
-              <h2 className="text-xl md:text-3.5xl font-bold tracking-tight text-text-primary leading-tight line-clamp-2 mb-2 md:mb-4">
-                {title}
-              </h2>
-
-              <p className="hidden md:line-clamp-3 text-sm leading-relaxed text-text-secondary mb-6 max-w-xl">
-                {overview}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3">
-                <Link
-                  to={`/${isMovie ? "movie" : "tv"}/${currentItem.id}`}
-                  className="inline-flex items-center gap-2 px-5 md:px-7 py-2.5 md:py-3 rounded-full bg-primary hover:bg-primary/95 text-white font-semibold text-sm transition-all shadow-lg hover:shadow-primary/20 cursor-pointer"
-                >
-                  <Play className="w-4 h-4 fill-white" />
-                  <span>Nonton Sekarang</span>
-                </Link>
-
-                <Link
-                  to={`/${isMovie ? "movie" : "tv"}/${currentItem.id}`}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 md:py-3 rounded-full bg-white/10 hover:bg-white/15 text-text-primary text-sm font-semibold transition-all cursor-pointer border border-white/5"
-                >
-                  <Info className="w-4 h-4" />
-                  <span className="hidden sm:inline">Detail</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Column: Poster Image with customized overlay */}
-            <div className="hidden md:block relative w-1/3 h-full overflow-hidden">
-              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-surface to-transparent z-10" />
-              {posterUrl ? (
-                <img
-                  src={posterUrl}
-                  alt={title}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover object-center transform scale-102 hover:scale-105 transition-transform duration-700"
-                />
-              ) : (
-                <div className="w-full h-full bg-[#1e2638] flex items-center justify-center">
-                  <Play className="w-16 h-16 text-primary/30" />
-                </div>
-              )}
-            </div>
           </motion.div>
         </AnimatePresence>
       </div>
