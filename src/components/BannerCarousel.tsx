@@ -39,7 +39,7 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = ({ items }) => {
     <div className="relative w-full" id="promo-banner-carousel">
       <Link
         to={`/${isMovie ? "movie" : "tv"}/${currentItem.id}`}
-        className="relative block w-full aspect-[3/4] sm:aspect-[16/9] rounded-promo overflow-hidden"
+        className="relative block w-full h-[220px] sm:h-[300px] md:h-[360px] rounded-promo overflow-hidden"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -59,7 +59,7 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = ({ items }) => {
               initial={{ scale: 1 }}
               animate={{ scale: 1.06 }}
               transition={{ duration: 6, ease: "linear" }}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover object-top"
             />
 
             {/* Bottom-up gradient just enough for the title to read clearly */}

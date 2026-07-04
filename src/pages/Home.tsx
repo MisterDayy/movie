@@ -129,21 +129,21 @@ export const Home: React.FC = () => {
       <div className="px-5 md:px-10 flex items-center gap-3 overflow-x-auto no-scrollbar">
         <Link
           to="/browse/now-playing"
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#FF6B6B] to-[#FF3D9A] text-white font-bold text-xs active:scale-95 transition-transform"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#FF3D9A] text-white font-bold text-xs active:scale-95 transition-transform"
         >
           <Clapperboard className="w-4 h-4" />
           <span># Special theater</span>
         </Link>
         <Link
           to="/browse/upcoming"
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#2F80FF] to-[#3ec1ff] text-white font-bold text-xs active:scale-95 transition-transform"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#2F80FF] to-[#3ec1ff] text-white font-bold text-xs active:scale-95 transition-transform"
         >
           <Users className="w-4 h-4" />
           <span># Group buy</span>
         </Link>
         <Link
           to="/browse/trending"
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#FFB347] to-[#FF8A00] text-white font-bold text-xs active:scale-95 transition-transform"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#FFB347] to-[#FF8A00] text-white font-bold text-xs active:scale-95 transition-transform"
         >
           <Flame className="w-4 h-4" />
           <span># Hot ranking</span>
