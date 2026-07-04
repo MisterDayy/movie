@@ -106,7 +106,9 @@ export interface DetailResponse {
   belongs_to_collection?: any;
   credits?: {
     cast: CastMember[];
+    crew?: { id: number; name: string; job: string; department?: string }[];
   };
+  production_companies?: { id: number; name: string }[];
 }
 
 export interface ServerItem {

@@ -110,9 +110,9 @@ export const ServerSelector: React.FC<ServerSelectorProps> = ({ type, id }) => {
               <button
                 key={idx}
                 onClick={() => setSelectedServer(server)}
-                className={`px-4 py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-103 active:scale-95 ${
+                className={`px-4 py-2.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-103 active:scale-95 ${
                   isSelected
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    ? "bg-primary text-white shadow-lg shadow-primary/30"
                     : "bg-white/5 text-text-secondary hover:bg-white/10 hover:text-white"
                 }`}
               >

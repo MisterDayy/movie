@@ -16,7 +16,7 @@ export const Mine: React.FC = () => {
       <TopBar title="Mine" />
 
       <div className="px-5 md:px-10 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-[#7c3aed] flex items-center justify-center shadow-lg shadow-primary/20">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-[#8a0000] flex items-center justify-center shadow-lg shadow-primary/20">
           <User className="w-7 h-7 text-white" />
         </div>
         <div>
@@ -30,7 +30,7 @@ export const Mine: React.FC = () => {
           <Link
             key={item.path}
             to={item.path}
-            className="flex items-center justify-between bg-surface border border-white/5 rounded-2xl px-4 py-3.5 hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between bg-surface border border-white/5 rounded-md px-4 py-3.5 hover:bg-surface-2 transition-colors"
           >
             <div className="flex items-center gap-3">
               <item.icon className="w-4 h-4 text-primary" />

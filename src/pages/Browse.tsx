@@ -148,43 +148,36 @@ export const Browse: React.FC = () => {
         </p>
       </div>
 
-      {/* Genre Filter Section */}
-      <div className="space-y-3 bg-surface border border-white/5 p-4 rounded-2xl shadow-sm">
-        <div className="flex items-center gap-2 text-xs font-bold text-text-primary uppercase tracking-wider">
-          <Filter className="w-3.5 h-3.5 text-primary" />
-          <span>Saring Berdasarkan Genre</span>
-        </div>
-
-        {/* Horizontal scrollable genre chips */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar -mx-2 px-2">
-          <button
-            onClick={() => handleGenreSelect(null)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex-shrink-0 ${
-              selectedGenreId === null
-                ? "bg-primary text-white"
-                : "bg-white/5 text-text-secondary hover:bg-white/10"
-            }`}
-          >
-            Semua
-          </button>
-          {Object.entries(genresMap).map(([idStr, name]) => {
-            const id = parseInt(idStr);
-            const isSelected = selectedGenreId === id;
-            return (
-              <button
-                key={id}
-                onClick={() => handleGenreSelect(id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex-shrink-0 ${
-                  isSelected
-                    ? "bg-primary text-white shadow-md shadow-primary/10"
-                    : "bg-white/5 text-text-secondary hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {name}
-              </button>
-            );
-          })}
-        </div>
+      {/* Genre Filter — plain-text pill tabs, active = solid white chip,
+          matching the reference's top filter row style */}
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar -mx-1 px-1">
+        <button
+          onClick={() => handleGenreSelect(null)}
+          className={`px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all cursor-pointer flex-shrink-0 ${
+            selectedGenreId === null
+              ? "bg-white text-black"
+              : "text-text-secondary hover:text-white"
+          }`}
+        >
+          Semua
+        </button>
+        {Object.entries(genresMap).map(([idStr, name]) => {
+          const id = parseInt(idStr);
+          const isSelected = selectedGenreId === id;
+          return (
+            <button
+              key={id}
+              onClick={() => handleGenreSelect(id)}
+              className={`px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all cursor-pointer flex-shrink-0 ${
+                isSelected
+                  ? "bg-white text-black"
+                  : "text-text-secondary hover:text-white"
+              }`}
+            >
+              {name}
+            </button>
+          );
+        })}
       </div>
 
       {/* Content Grid */}

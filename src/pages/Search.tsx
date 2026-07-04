@@ -101,7 +101,7 @@ export const Search: React.FC = () => {
               <button
                 key={index}
                 onClick={() => setQuery(term)}
-                className="px-4 py-2 rounded-xl bg-surface hover:bg-white/5 border border-white/5 text-xs text-text-secondary hover:text-white transition-colors cursor-pointer font-medium"
+                className="px-4 py-2 rounded-md bg-surface hover:bg-surface-2 border border-white/5 text-xs text-text-secondary hover:text-white transition-colors cursor-pointer font-medium"
               >
                 {term}
               </button>

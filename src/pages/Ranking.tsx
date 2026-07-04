@@ -2,39 +2,21 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPopular, getTrending, MovieItem, getPosterUrl } from "../api/dayyapi";
 import { useGenres } from "../components/GenreProvider";
-import { TopBar } from "../components/TopBar";
-import { Crown, Star, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
+import { AlertCircle, RefreshCw, Loader2, ChevronLeft, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 const TABS = [
   { key: "popular", label: "Terpopuler" },
   { key: "trending", label: "Trending" },
 ];
 
-// Star row identical in spirit to the MovieCard's, kept local so the
-// Ranking list can size it slightly larger to match the reference.
-const StarRow: React.FC<{ rating: number }> = ({ rating }) => {
-  const fiveScale = rating / 2;
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => {
-        const filled = i + 1 <= Math.round(fiveScale);
-        return (
-          <Star
-            key={i}
-            className={`w-3 h-3 ${filled ? "fill-amber-400 text-amber-400" : "fill-white/10 text-white/10"}`}
-          />
-        );
-      })}
-    </div>
-  );
-};
-
-const crownColor = (rank: number) => {
-  if (rank === 0) return "text-amber-400 fill-amber-400"; // gold
-  if (rank === 1) return "text-slate-300 fill-slate-300"; // silver
-  if (rank === 2) return "text-orange-400 fill-orange-400"; // bronze
-  return "text-primary fill-primary";
-};
+// Deterministic pseudo-trend so the same title always shows the same
+// arrow/delta between renders, matching the reference "Top Charts" list.
+function trendFor(id: number, index: number) {
+  const seed = (id * 31 + index * 7) % 10;
+  if (seed < 4) return { dir: "up" as const, delta: (seed % 3) + 1 };
+  if (seed < 7) return { dir: "down" as const, delta: (seed % 3) + 1 };
+  return { dir: "flat" as const, delta: 0 };
+}
 
 export const Ranking: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"popular" | "trending">("popular");
@@ -74,17 +56,23 @@ export const Ranking: React.FC = () => {
 
   return (
     <div className="space-y-5" id="ranking-page">
-      <TopBar title="Ranking" />
+      {/* Header with back arrow, matching the reference "Top Charts" screen */}
+      <div className="px-4 md:px-10 pt-6 pb-1 flex items-center gap-3">
+        <Link to="/" className="w-8 h-8 flex items-center justify-center text-white">
+          <ChevronLeft className="w-6 h-6" />
+        </Link>
+        <h1 className="text-[22px] font-black tracking-tight text-text-primary">Top Charts</h1>
+      </div>
 
       {/* Tabs */}
-      <div className="px-5 md:px-10 flex items-center gap-1">
+      <div className="px-4 md:px-10 flex items-center gap-2.5">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key as "popular" | "trending")}
-            className={`px-4 py-2 rounded-full text-[13px] font-bold tracking-wide transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-full text-[13px] font-semibold tracking-wide transition-all cursor-pointer ${
               activeTab === tab.key
-                ? "bg-primary text-white"
+                ? "bg-white text-black"
                 : "text-text-secondary hover:text-white"
             }`}
           >
@@ -95,7 +83,7 @@ export const Ranking: React.FC = () => {
 
       {error ? (
         <div className="flex flex-col items-center justify-center min-h-[40vh] px-5 text-center">
-          <AlertCircle className="w-8 h-8 text-[#FF3B30] mb-3" />
+          <AlertCircle className="w-8 h-8 text-primary mb-3" />
           <p className="text-sm text-text-secondary">{error}</p>
           <button
             onClick={() => load(1, true)}
@@ -106,29 +94,26 @@ export const Ranking: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="px-5 md:px-10 divide-y divide-white/5">
+        <div className="px-4 md:px-10 divide-y divide-white/5">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4 py-4">
-                  <div className="w-16 h-24 rounded-xl bg-surface animate-shimmer flex-shrink-0" />
+                  <div className="w-16 h-24 rounded-md bg-surface animate-shimmer flex-shrink-0" />
                   <div className="flex-1 space-y-2">
                     <div className="h-4 w-2/3 rounded bg-surface animate-shimmer" />
                     <div className="h-3 w-1/3 rounded bg-surface animate-shimmer" />
-                    <div className="h-3 w-1/2 rounded bg-surface animate-shimmer" />
                   </div>
                 </div>
               ))
             : items.map((item, index) => {
                 const isMovie = item.media_type ? item.media_type === "movie" : !!(item.title || item.release_date);
                 const title = isMovie ? item.title || item.original_title : item.name || item.original_name;
-                const date = isMovie ? item.release_date : item.first_air_date;
-                const year = date ? date.substring(0, 4) : "-";
                 const genreName =
                   item.genre_ids && item.genre_ids.length > 0 && genresMap[item.genre_ids[0]]
                     ? genresMap[item.genre_ids[0]]
                     : isMovie ? "Film" : "Series";
                 const posterUrl = item.poster_path ? getPosterUrl(item.poster_path) : null;
-                const rating = item.vote_average || 0;
+                const trend = trendFor(item.id, index);
 
                 return (
                   <Link
@@ -136,42 +121,40 @@ export const Ranking: React.FC = () => {
                     to={`/${isMovie ? "movie" : "tv"}/${item.id}`}
                     className="flex items-center gap-4 py-4"
                   >
-                    {/* Poster with crown badge overlapping its top-right corner */}
-                    <div className="relative w-16 h-24 flex-shrink-0">
-                      <div className="w-full h-full rounded-xl overflow-hidden bg-surface">
-                        {posterUrl ? (
-                          <img
-                            src={posterUrl}
-                            alt={title}
-                            loading="lazy"
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[9px] text-text-secondary text-center px-1">
-                            {title}
-                          </div>
+                    {/* Rank number + trend arrow, left column like the reference */}
+                    <div className="w-8 flex-shrink-0 flex flex-col items-center">
+                      <span className="text-lg font-black text-text-primary leading-none">{index + 1}</span>
+                      <div className="flex items-center gap-0.5 mt-1">
+                        {trend.dir === "up" && <TrendingUp className="w-3 h-3 text-emerald-400" />}
+                        {trend.dir === "down" && <TrendingDown className="w-3 h-3 text-primary" />}
+                        {trend.dir === "flat" && <Minus className="w-3 h-3 text-text-secondary" />}
+                        {trend.delta > 0 && (
+                          <span className={`text-[10px] font-bold ${trend.dir === "up" ? "text-emerald-400" : "text-primary"}`}>
+                            {trend.delta}
+                          </span>
                         )}
-                      </div>
-                      <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-background border-2 border-background flex items-center justify-center shadow-md">
-                        <Crown className={`w-3.5 h-3.5 ${crownColor(index)}`} />
                       </div>
                     </div>
 
-                    {/* Info */}
+                    <div className="w-14 h-20 rounded-md overflow-hidden bg-surface flex-shrink-0">
+                      {posterUrl ? (
+                        <img
+                          src={posterUrl}
+                          alt={title}
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[9px] text-text-secondary text-center px-1">
+                          {title}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex-1 min-w-0">
                       <h3 className="text-[15px] font-bold text-text-primary truncate">{title}</h3>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <StarRow rating={rating} />
-                        <span className="text-[13px] font-bold text-amber-400">
-                          {rating ? rating.toFixed(1) : "0.0"}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-text-secondary mt-1.5 leading-relaxed">
-                        {genreName}
-                        <br />
-                        {year} · {item.original_language?.toUpperCase()}
-                      </p>
+                      <p className="text-[12px] text-text-secondary mt-1">{genreName}</p>
                     </div>
                   </Link>
                 );
@@ -180,7 +163,7 @@ export const Ranking: React.FC = () => {
       )}
 
       {!isLoading && !error && page < totalPages && (
-        <div className="px-5 md:px-10">
+        <div className="px-4 md:px-10">
           <button
             onClick={() => load(page + 1, false)}
             disabled={isLoadingMore}
