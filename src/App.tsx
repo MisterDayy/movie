@@ -9,6 +9,7 @@ import { Browse } from "./pages/Browse";
 import { Search } from "./pages/Search";
 import { Detail } from "./pages/Detail";
 import { Watch } from "./pages/Watch";
+import { Onboarding } from "./pages/Onboarding";
 import { Play, Flame, Film, Tv, Compass, ShieldAlert } from "lucide-react";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <main className="flex-grow pb-24">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/ranking" element={<Ranking />} />
               <Route path="/mine" element={<Mine />} />
               <Route path="/browse/:category" element={<Browse />} />
