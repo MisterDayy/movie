@@ -4,7 +4,7 @@ import { BannerCarousel } from "../components/BannerCarousel";
 import { MovieCard } from "../components/MovieCard";
 import { CardSkeleton, BannerSkeleton } from "../components/Skeleton";
 import { TopBar } from "../components/TopBar";
-import { AlertCircle, RefreshCw, ChevronRight, HelpCircle, Clapperboard, Users } from "lucide-react";
+import { AlertCircle, RefreshCw, ChevronRight, HelpCircle, Clapperboard, Users, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Home: React.FC = () => {
@@ -89,16 +89,16 @@ export const Home: React.FC = () => {
 
       {/* Category pill tabs */}
       <div className="px-5 md:px-10 -mt-2">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1">
           <button
             onClick={() => scrollToSection("recommend")}
-            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-[13px] font-bold tracking-wide transition-all cursor-pointer ${
               activeSection === "recommend"
-                ? "bg-primary text-white shadow-lg shadow-primary/20"
-                : "bg-surface text-text-secondary border border-white/5 hover:text-white"
+                ? "bg-primary text-white"
+                : "text-text-secondary hover:text-white"
             }`}
           >
-            Rekomendasi
+            Recommend
           </button>
           {sectionEntries.map(([key, raw]) => {
             const section = raw as { label: string; results: MovieItem[] };
@@ -107,10 +107,10 @@ export const Home: React.FC = () => {
               <button
                 key={key}
                 onClick={() => scrollToSection(key)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-[13px] font-bold tracking-wide transition-all cursor-pointer ${
                   activeSection === key
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-surface text-text-secondary border border-white/5 hover:text-white"
+                    ? "bg-primary text-white"
+                    : "text-text-secondary hover:text-white"
                 }`}
               >
                 {section.label}
@@ -125,21 +125,28 @@ export const Home: React.FC = () => {
         {isLoading ? <BannerSkeleton /> : <BannerCarousel items={trendingItems} />}
       </div>
 
-      {/* Promo gradient quick-access buttons */}
-      <div className="px-5 md:px-10 flex items-center gap-3">
+      {/* Promo gradient quick-access buttons — scrollable so a 3rd option peeks, like the reference */}
+      <div className="px-5 md:px-10 flex items-center gap-3 overflow-x-auto no-scrollbar">
         <Link
           to="/browse/now-playing"
-          className="flex-1 flex items-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-[#FF6B6B] to-[#FF3D9A] text-white font-bold text-xs shadow-lg shadow-[#FF3D9A]/20 active:scale-95 transition-transform"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#FF6B6B] to-[#FF3D9A] text-white font-bold text-xs active:scale-95 transition-transform"
         >
           <Clapperboard className="w-4 h-4" />
-          <span># Sedang Tayang</span>
+          <span># Special theater</span>
         </Link>
         <Link
           to="/browse/upcoming"
-          className="flex-1 flex items-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-[#2F80FF] to-[#7C3AED] text-white font-bold text-xs shadow-lg shadow-primary/20 active:scale-95 transition-transform"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#2F80FF] to-[#3ec1ff] text-white font-bold text-xs active:scale-95 transition-transform"
         >
           <Users className="w-4 h-4" />
-          <span># Segera Tayang</span>
+          <span># Group buy</span>
+        </Link>
+        <Link
+          to="/browse/trending"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#FFB347] to-[#FF8A00] text-white font-bold text-xs active:scale-95 transition-transform"
+        >
+          <Flame className="w-4 h-4" />
+          <span># Hot ranking</span>
         </Link>
       </div>
 

@@ -14,7 +14,7 @@ export const TopBar: React.FC<TopBarProps> = ({ title }) => {
       </h1>
       <Link
         to="/search"
-        className="flex items-center gap-2 bg-surface border border-white/5 rounded-full px-4 py-2.5 text-text-secondary hover:text-white transition-colors shadow-md"
+        className="flex items-center gap-2 bg-surface rounded-full px-4 py-2.5 text-text-secondary hover:text-white transition-colors"
       >
         <Search className="w-4 h-4" />
         <span className="text-xs font-medium hidden sm:inline">Search</span>

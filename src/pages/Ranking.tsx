@@ -10,6 +10,32 @@ const TABS = [
   { key: "trending", label: "Trending" },
 ];
 
+// Star row identical in spirit to the MovieCard's, kept local so the
+// Ranking list can size it slightly larger to match the reference.
+const StarRow: React.FC<{ rating: number }> = ({ rating }) => {
+  const fiveScale = rating / 2;
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const filled = i + 1 <= Math.round(fiveScale);
+        return (
+          <Star
+            key={i}
+            className={`w-3 h-3 ${filled ? "fill-amber-400 text-amber-400" : "fill-white/10 text-white/10"}`}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const crownColor = (rank: number) => {
+  if (rank === 0) return "text-amber-400 fill-amber-400"; // gold
+  if (rank === 1) return "text-slate-300 fill-slate-300"; // silver
+  if (rank === 2) return "text-orange-400 fill-orange-400"; // bronze
+  return "text-primary fill-primary";
+};
+
 export const Ranking: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"popular" | "trending">("popular");
   const [items, setItems] = useState<MovieItem[]>([]);
@@ -46,27 +72,20 @@ export const Ranking: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  const rankAccent = (rank: number) => {
-    if (rank === 0) return "text-amber-400 fill-amber-400";
-    if (rank === 1) return "text-slate-300 fill-slate-300";
-    if (rank === 2) return "text-orange-400 fill-orange-400";
-    return "";
-  };
-
   return (
     <div className="space-y-5" id="ranking-page">
       <TopBar title="Ranking" />
 
       {/* Tabs */}
-      <div className="px-5 md:px-10 flex items-center gap-2">
+      <div className="px-5 md:px-10 flex items-center gap-1">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key as "popular" | "trending")}
-            className={`px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-full text-[13px] font-bold tracking-wide transition-all cursor-pointer ${
               activeTab === tab.key
-                ? "bg-primary text-white shadow-lg shadow-primary/20"
-                : "bg-surface text-text-secondary border border-white/5 hover:text-white"
+                ? "bg-primary text-white"
+                : "text-text-secondary hover:text-white"
             }`}
           >
             {tab.label}
@@ -87,10 +106,17 @@ export const Ranking: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="px-5 md:px-10 space-y-2.5">
+        <div className="px-5 md:px-10 divide-y divide-white/5">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 bg-surface rounded-2xl p-3 animate-shimmer h-24" />
+                <div key={i} className="flex items-center gap-4 py-4">
+                  <div className="w-16 h-24 rounded-xl bg-surface animate-shimmer flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-2/3 rounded bg-surface animate-shimmer" />
+                    <div className="h-3 w-1/3 rounded bg-surface animate-shimmer" />
+                    <div className="h-3 w-1/2 rounded bg-surface animate-shimmer" />
+                  </div>
+                </div>
               ))
             : items.map((item, index) => {
                 const isMovie = item.media_type ? item.media_type === "movie" : !!(item.title || item.release_date);
@@ -100,71 +126,68 @@ export const Ranking: React.FC = () => {
                 const genreName =
                   item.genre_ids && item.genre_ids.length > 0 && genresMap[item.genre_ids[0]]
                     ? genresMap[item.genre_ids[0]]
-                    : "Film";
+                    : isMovie ? "Film" : "Series";
                 const posterUrl = item.poster_path ? getPosterUrl(item.poster_path) : null;
+                const rating = item.vote_average || 0;
 
                 return (
                   <Link
                     key={`${item.id}-${index}`}
                     to={`/${isMovie ? "movie" : "tv"}/${item.id}`}
-                    className="flex items-center gap-3 bg-surface border border-white/5 rounded-2xl p-2.5 hover:bg-white/5 transition-colors"
+                    className="flex items-center gap-4 py-4"
                   >
-                    {/* Rank marker */}
-                    <div className="w-6 flex-shrink-0 flex justify-center">
-                      {index < 3 ? (
-                        <Crown className={`w-5 h-5 ${rankAccent(index)}`} />
-                      ) : (
-                        <span className="text-sm font-bold text-text-secondary">{index + 1}</span>
-                      )}
-                    </div>
-
-                    {/* Poster */}
-                    <div className="w-16 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-background">
-                      {posterUrl ? (
-                        <img
-                          src={posterUrl}
-                          alt={title}
-                          loading="lazy"
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[9px] text-text-secondary text-center px-1">
-                          {title}
-                        </div>
-                      )}
+                    {/* Poster with crown badge overlapping its top-right corner */}
+                    <div className="relative w-16 h-24 flex-shrink-0">
+                      <div className="w-full h-full rounded-xl overflow-hidden bg-surface">
+                        {posterUrl ? (
+                          <img
+                            src={posterUrl}
+                            alt={title}
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[9px] text-text-secondary text-center px-1">
+                            {title}
+                          </div>
+                        )}
+                      </div>
+                      <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-background border-2 border-background flex items-center justify-center shadow-md">
+                        <Crown className={`w-3.5 h-3.5 ${crownColor(index)}`} />
+                      </div>
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-text-primary truncate">{title}</h3>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-sm font-bold text-amber-400">
-                          {item.vote_average ? item.vote_average.toFixed(1) : "0.0"}
+                      <h3 className="text-[15px] font-bold text-text-primary truncate">{title}</h3>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <StarRow rating={rating} />
+                        <span className="text-[13px] font-bold text-amber-400">
+                          {rating ? rating.toFixed(1) : "0.0"}
                         </span>
                       </div>
-                      <p className="text-[11px] text-text-secondary mt-0.5 truncate">
-                        {genreName} · {year}
+                      <p className="text-[11px] text-text-secondary mt-1.5 leading-relaxed">
+                        {genreName}
+                        <br />
+                        {year} · {item.original_language?.toUpperCase()}
                       </p>
                     </div>
                   </Link>
                 );
               })}
+        </div>
+      )}
 
-          {!isLoading && page < totalPages && (
-            <button
-              onClick={() => load(page + 1, false)}
-              disabled={isLoadingMore}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-surface border border-white/5 text-xs font-semibold text-text-secondary hover:text-white transition-colors mt-2 cursor-pointer"
-            >
-              {isLoadingMore ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <span>Muat Lebih Banyak</span>
-              )}
-            </button>
-          )}
+      {!isLoading && !error && page < totalPages && (
+        <div className="px-5 md:px-10">
+          <button
+            onClick={() => load(page + 1, false)}
+            disabled={isLoadingMore}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-surface text-xs font-semibold text-text-secondary hover:text-white transition-colors cursor-pointer"
+          >
+            {isLoadingMore ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Muat Lebih Banyak</span>}
+          </button>
         </div>
       )}
     </div>
