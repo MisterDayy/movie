@@ -249,7 +249,7 @@ export const Detail: React.FC = () => {
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar -mx-5 px-5 md:-mx-10 md:px-10">
+            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
               {popular.slice(0, 10).map((m) => (
                 <MovieCard key={m.id} item={m} />
               ))}

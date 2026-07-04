@@ -20,7 +20,7 @@ export const CastList: React.FC<CastListProps> = ({ cast }) => {
 
   return (
     <div className="w-full">
-      <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-5 px-5 md:-mx-10 md:px-10 snap-x snap-mandatory scroll-smooth">
+      <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
         {displayCast.map((actor) => {
           const avatarUrl = actor.profile_path ? getProfileUrl(actor.profile_path) : null;
 

@@ -164,7 +164,7 @@ export const Home: React.FC = () => {
                   </Link>
                 </div>
 
-                <div className="flex gap-3 overflow-x-auto pb-4 pt-1 no-scrollbar -mx-4 px-4 md:-mx-10 md:px-10 snap-x snap-mandatory scroll-smooth">
+                <div className="flex gap-3 overflow-x-auto pb-4 pt-1 no-scrollbar snap-x snap-mandatory scroll-smooth">
                   {isFeaturedRow
                     ? section.results.slice(0, 8).map((movie, i) => (
                         <div key={movie.id} className="snap-start">
