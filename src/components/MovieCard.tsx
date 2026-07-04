@@ -7,9 +7,13 @@ import { MovieItem, getPosterUrl } from "../api/dayyapi";
 interface MovieCardProps {
   item: MovieItem;
   mediaType?: "movie" | "tv";
+  // Use inside CSS grids (Browse/Search results) so the card fills its
+  // grid cell. Leave false for horizontal-scroll rails (Home, Detail),
+  // which need a fixed rail width instead.
+  fullWidth?: boolean;
 }
 
-export const MovieCard: React.FC<MovieCardProps> = ({ item, mediaType }) => {
+export const MovieCard: React.FC<MovieCardProps> = ({ item, mediaType, fullWidth }) => {
   const actualType = mediaType || item.media_type || (item.title || item.release_date ? "movie" : "tv");
   const isMovie = actualType === "movie";
 
@@ -18,7 +22,11 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, mediaType }) => {
   const rating = item.vote_average || 0;
 
   return (
-    <Link to={`/${actualType}/${item.id}`} className="block select-none flex-shrink-0 w-[112px] md:w-[150px]" id={`card-${actualType}-${item.id}`}>
+    <Link
+      to={`/${actualType}/${item.id}`}
+      className={`block select-none ${fullWidth ? "w-full" : "flex-shrink-0 w-[112px] md:w-[150px]"}`}
+      id={`card-${actualType}-${item.id}`}
+    >
       <motion.div
         whileTap={{ scale: 0.96 }}
         transition={{ duration: 0.15, ease: "easeOut" }}

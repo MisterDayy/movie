@@ -216,7 +216,7 @@ export const Browse: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-3 gap-y-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="animate-fade-in">
-              <MovieCard item={item} mediaType={category === "trending" ? undefined : (category === "discover" ? "movie" : undefined)} />
+              <MovieCard item={item} mediaType={category === "trending" ? undefined : (category === "discover" ? "movie" : undefined)} fullWidth />
             </div>
           ))}
         </div>
